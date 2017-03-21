@@ -28,6 +28,9 @@ class Placement(object):
 		self.parent_start = 0
 		self.parent_stop = 0
 		self.alt_tails = [0,0]
+	def __repr__(self):
+        	from pprint import pformat
+        	return pformat(vars(self))
 
 	def sort_key(self):
 		return self.parent_start
@@ -39,6 +42,8 @@ def read_grc_placements(filename):
 		if line[0] == '#':
 			continue
 		d = line.split("\t")
+		if d[1] != 'Primary Assembly':
+			continue
 		p = Placement()
 		p.alt_name = d[3]
 		p.alt_asm = d[0]
@@ -63,7 +68,8 @@ def read_grc_placements(filename):
 	return placements
 
 def read_grc_regions(filename):
-	print filename
+	#print filename
+	return 0
 
 def get_parents(placements):
 	parents = set()
@@ -72,6 +78,7 @@ def get_parents(placements):
 	return list(parents)
 
 # real work
+mfa_gap_counter = 1
 class MFA(object):
 	def __init__(self):
 		self.rows = []
@@ -79,12 +86,23 @@ class MFA(object):
 		header.letter = 'H'
 		header.version = '1.0'
 		self.rows.append(header)
+		mfa_gap_counter = 1
 	def add_comment(self, comment):
 		row = MFA_Row()
 		row.letter = '#'
 		row.comment = comment
 		self.rows.append(row)
-
+	def make_gap(self):
+		global mfa_gap_counter
+		gap_row = MFA_Row()
+		gap_row.letter = 'S'
+		gap_row.sequence_name = 'dummy_gap__' + str(mfa_gap_counter)
+		gap_row.sequence_iupac = 'NNNNNNNNNN'
+		gap_row.sequence_length = 10
+		self.rows.append(gap_row)
+		mfa_gap_counter += 1
+		return gap_row.sequence_name
+	
 class MFA_Row(object):
 	def __init__(self):
 		self.letter = ''
@@ -92,7 +110,8 @@ class MFA_Row(object):
 		self.sequence_start = 0
 		self.sequence_stop = 0
 		self.sequence_iupac = 'unsetunsetunset'
-		
+		self.sequence_length = 0	
+	
 		self.link_from_name= 'unset'
 		self.link_to_name = 'unset'
 		self.link_from_strand = '+'
@@ -104,7 +123,7 @@ class MFA_Row(object):
 		
 	def to_string(self):
 		if self.letter == 'S':
-			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac
+			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac + '\t' + 'LN:i:' + str(self.sequence_length)
 		elif self.letter == 'L':
 			return self.letter+'\t'+self.link_from_name+'\t'+self.link_from_strand+'\t'+self.link_to_name+'\t'+self.link_to_strand+'\t'+self.link_cigar	
 		elif self.letter == 'H':
@@ -113,7 +132,10 @@ class MFA_Row(object):
 			return self.letter + self.comment
 		else:
 			return "mfa_row::to_string error: no letter"	
-	
+
+
+
+
 def make_mfa_from_placements(placements, lengths):
 	mfa = MFA()
 	parent_name = placements[0].parent_name
@@ -122,17 +144,12 @@ def make_mfa_from_placements(placements, lengths):
 	sort_placements = sorted(placements, key=Placement.sort_key)
 
 	mfa.add_comment(parent_name)
-
+	
+	gap_counter = 1
 	tail_count = 0	
 	for placement in sort_placements:
 		tail_count += placement.alt_tails[0]
 		tail_count += placement.alt_tails[1]
-	if tail_count > 0:
-		dummy_gap_row = MFA_Row()
-		dummy_gap_row.letter = 'S'
-		dummy_gap_row.sequence_name = 'dummy_gap'
-		dummy_gap_row.sequence_iupac = 'NNNNNNNNNN'
-		mfa.rows.append(dummy_gap_row)
 
 	# extract the parent segment starts 
 	for placement in sort_placements:
@@ -151,7 +168,8 @@ def make_mfa_from_placements(placements, lengths):
 		row.letter = 'S'
 		row.sequence_name = placement.alt_name
 		row.sequence_start = 0
-		row.sequence_stop = lengths[placement.alt_name]
+		row.sequence_stop = lengths[placement.alt_name] - 1
+		row.sequence_length = lengths[placement.alt_name]
 		mfa.rows.append(row)
 	
 	# make parent segment rows
@@ -167,12 +185,14 @@ def make_mfa_from_placements(placements, lengths):
 		row.sequence_name = parent_name + '__' + str(i+1) + '__'+str(start)+'_'+str(stop)
 		row.sequence_start = start
 		row.sequence_stop = stop
+		row.sequence_length = (stop-start)+1
 		mfa.rows.append(row)
 		
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name
 		parent_names.append(row.sequence_name)
 		i += 1
+
 	#pprint.pprint(parent_name_map)
 	#pprint.pprint(parent_names)
 
@@ -191,6 +211,8 @@ def make_mfa_from_placements(placements, lengths):
 	
 	# make alt-to-parent link rows
 	for placement in sort_placements:
+		#pprint.pprint(placement)
+
 		if placement.alt_tails[0] == 0:
 			alt_in = MFA_Row()
 			alt_in.letter = 'L'
@@ -200,13 +222,14 @@ def make_mfa_from_placements(placements, lengths):
 			alt_in.link_to_strand = placement.alt_orient
 			mfa.rows.append(alt_in)
 		elif placement.alt_tails[0] > 0:
+			gap_name = mfa.make_gap()
 			gap_in = MFA_Row()
 			alt_in = MFA_Row()
 			gap_in.letter = 'L'
 			gap_in.link_from_name = parent_name_map[placement.parent_start-1]
-			gap_in.link_to_name = 'dummy_gap'
+			gap_in.link_to_name = gap_name
 			alt_in.letter = 'L'
-			alt_in.link_from_name = 'dummy_gap'
+			alt_in.link_from_name = gap_name
 			alt_in.link_to_name = placement.alt_name
 			alt_in.link_to_strand = placement.alt_orient
 			mfa.rows.append(gap_in)
@@ -222,14 +245,15 @@ def make_mfa_from_placements(placements, lengths):
 			alt_out.link_to_strand = '+'	
 			mfa.rows.append(alt_out)
 		elif placement.alt_tails[1] > 0:
+			gap_name = mfa.make_gap()
 			alt_out = MFA_Row()
 			gap_out = MFA_Row()
 			alt_out.letter = 'L'
 			alt_out.link_from_name = placement.alt_name
 			alt_out.link_from_strand = placement.alt_orient
-			alt_out.link_to_name = 'dummy_out'
+			alt_out.link_to_name = gap_name
 			gap_out.letter = 'L'
-			gap_out.link_from_name = 'dummy_out'
+			gap_out.link_from_name = gap_name
 			gap_out.link_to_name = parent_name_map[placement.parent_stop+1]
 			mfa.rows.append(alt_out)
 			mfa.rows.append(gap_out)

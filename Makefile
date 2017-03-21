@@ -27,10 +27,8 @@ install-svgen:
 	install -m 0755 Simulation/generate_reads.sh $(BIN_INSTALL_PREFIX)
 
 twopaco:
-	cd TwoPaCo
-	mkdir build
-	cd build
-	cmake ../src
+	cd TwoPaCo mkdir build && cd build && \
+	cmake ../src && \
 	$(MAKE)
 
 clean:

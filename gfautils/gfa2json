@@ -1,6 +1,13 @@
 #!/usr/bin/perl
-use strict;
+use strict 'subs';
 use warnings;
+
+use threads;
+use threads::shared;
+
+use Getopt::Long;
+use Pod::Usage;
+use Thread::Queue;
 
 use JSON;
 
@@ -10,41 +17,86 @@ Getopt::Long::Configure (
     'gnu_compat'                        # Allows --opt=BLA syntax and --opt "BLA"
 );
 
-my @nodes;
-my @edges;
+my @nodes :shared;
+my @edges :shared;
+my $procs = 1;
+my $sensitive = 0;
 
 my %jg = ("graph" => {});
 
+GetOptions (
+    'processes:+'   => \$procs,
+    'sensitive'     => \$sensitive,
+    'help'          => \$help,
+)
+    or die pod2usage(                   # Print documentation and quit if bad opts
+        -exitval => $help,              # With return value 0 if $help was not set
+        -verbose => 2                   # Print all the sections
+);
+
+unless ($sensitive) {
+	$SIG{'INT'} = \&end;
+	$SIG{'QUIT'} = \&end;
+}
+
+# Threading initialization section
+my $queue = Thread::Queue->new();       # Queue feeds URLs to download to workers
+threads->create(\&worker)               # Create $procs download threads
+    for 1 .. $procs;
+
 while (<>) {
+	$queue->enqueue($_);
+}
+
+$queue->end;
+
+$_->join() foreach threads->list;
+
+sub worker {
+	while ($_ = $queue->dequeue) {
 # # 	Comment
-	next if /^#/;
+		next if /^#/;
 # H 	Header
-	next if /^H/;
+		next if /^H/;
 # S 	Segment
-	if (/^S\t(\S*)\t(\*|[A-Za-z=.]+)/) {
-		push @nodes, {"id" => $1, "label" => $2};
-		next;
-	}
-# L 	Link
-	if (/^L/) {
-		my @L = split /\t/;
-		push @edges, {"source" => $L[1], "target" => $L[3]};
-		next;
-	}
-# C 	Containment
-	next if /^C/;
-# P 	Path
-	if (/^P\t(\S*)\t(\S*)\t\*|([0-9]+[MIDNSHPX=])+/) {
-		my $label = $1;
-		my @nodes = split /[+\-],/, $2; # Throws out orientation
-		warn $2;
-		my $prev_node = pop @nodes;
-		while (my $curr_node = pop @nodes) {
-			push @edges, {"source" => $prev_node, "target" => $curr_node, "label" => $label};
-			$prev_node = $curr_node;
+		if (/^S\t(\S*)\t(\*|[A-Za-z=.]+)/) {
+			my %node :shared;
+			$node{"id"} = $1;
+			$node{"label"} = $2;
+			lock(@nodes);
+			push @nodes, \%node;
+			next;
 		}
+# L 	Link
+		if (/^L/) {
+			my @L = split /\t/;
+			my %edge :shared;
+			$edge{"source"} = $L[1];
+			$edge{"target"} = $L[3];
+			lock(@edges);
+			push @edges, \%edge;
+			next;
+		}
+# C 	Containment
+		next if /^C/;
+# P 	Path
+		if (/^P/) {
+			my @L = split /\t/;
+			my $label = $L[1];
+			my @nodes = split /[+\-],/, $L[2]; # Throws out orientation
+			my $prev_node = pop @nodes;
+			lock(@edges);
+			while (my $curr_node = pop @nodes) {
+				my %edge :shared;
+				$edge{"source"} = $prev_node;
+				$edge{"target"} = $curr_node;
+				$edge{"label"} = $label;
+				push @edges, \%edge;
+				$prev_node = $curr_node;
+			}
+		}
+		warn "Unrecognized line format!\n";
 	}
-	warn "Unrecognized line format!\n";
 }
 sub end {
 	$jg{"graph"}{"nodes"} = \@nodes;

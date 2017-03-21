@@ -2,6 +2,7 @@
 
 import pprint
 import urllib
+import Bio
 
 # file readers
 
@@ -174,7 +175,7 @@ class MFA_Row(object):
 
 
 
-def make_mfa_from_placements(placements, lengths):
+def make_mfa_from_placements(placements, lengths, fasta_sequences):
 	mfa = MFA()
 	parent_name = placements[0].parent_name
 	parent_seg_starts = [1]
@@ -208,6 +209,7 @@ def make_mfa_from_placements(placements, lengths):
 		row.sequence_start = 0
 		row.sequence_stop = lengths[placement.alt_name] - 1
 		row.sequence_length = lengths[placement.alt_name]
+		# LIN HERE
 		mfa.rows.append(row)
 	
 	# make parent segment rows
@@ -225,7 +227,7 @@ def make_mfa_from_placements(placements, lengths):
 		row.sequence_stop = stop
 		row.sequence_length = (stop-start)+1
 		mfa.rows.append(row)
-		
+		# LIN HERE
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name
 		parent_names.append(row.sequence_name)
@@ -322,6 +324,15 @@ parents = get_parents(placements)
 
 #print len(lengths) , len(placements) , len(parents)
 
+fasta_file_name = '/home/ubuntu/grc_data/GCF_000001405.36_GRCh38.p10_genomic.fna'
+fasta_sequences = {}
+from Bio import SeqIO
+for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
+	fasta_sequences[seq_record.id] = seq_record	
+	#print(seq_record.id)
+   	#print(repr(seq_record.seq))
+   	#print(len(seq_record))
+
 # calculate MFA segments, links, paths, for a given parent
 result_mfa = [];
 for parent in parents:
@@ -332,7 +343,7 @@ for parent in parents:
 	for placement in placements:
 		if placement.parent_name == parent:
 			curr_placements.append(placement)
-	mfa = make_mfa_from_placements(curr_placements, lengths)
+	mfa = make_mfa_from_placements(curr_placements, lengths, fasta_sequences)
 	result_mfa.append(mfa)
 	#print parent, len(curr_placements)
 

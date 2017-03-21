@@ -1,6 +1,7 @@
 #! /usr/bin/python
 
 import pprint
+import urllib
 
 # file readers
 
@@ -60,6 +61,9 @@ def read_grc_placements(filename):
 		#print p.alt_name , p.parent_name, p.parent_start, p.parent_stop
 	f.close()
 	return placements
+
+def read_grc_regions(filename):
+	print filename
 
 def get_parents(placements):
 	parents = set()
@@ -243,8 +247,15 @@ def output_mfa(output_mfas):
 
 # main
 
+baseurl = 'ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/001/405/GCF_000001405.36_GRCh38.p10/'
+alt_scaff_pl_url = baseurl + 'GCF_000001405.36_GRCh38.p10_assembly_structure/all_alt_scaffold_placement.txt'
+assm_regions_url = baseurl + 'GCF_000001405.36_GRCh38.p10_assembly_regions.txt'
+alt_scaff = urllib.urlretrieve(alt_scaff_pl_url)
+regions = urllib.urlretrieve(assm_regions_url)
+
 lengths = read_seq_lengths('all_seq_len')
-placements = read_grc_placements('all_alt_scaffold_placement.txt')
+placements = read_grc_placements(alt_scaff[0])
+regions = read_grc_regions(regions[0])
 parents = get_parents(placements)
 
 #print len(lengths) , len(placements) , len(parents)

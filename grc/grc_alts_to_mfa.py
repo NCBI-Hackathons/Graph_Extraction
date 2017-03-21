@@ -63,7 +63,12 @@ def read_grc_placements(filename):
 	return placements
 
 def read_grc_regions(filename):
-	print filename
+	placements = []
+	f = open(filename, "r")
+	count = 0
+	for line in iter(f):
+	    count = count + 1
+	print filename, 'lines:', count
 
 def get_parents(placements):
 	parents = set()

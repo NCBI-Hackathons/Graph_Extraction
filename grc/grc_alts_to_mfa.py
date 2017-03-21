@@ -68,14 +68,47 @@ def read_grc_placements(filename):
 	f.close()
 	return placements
 
+class Region(object):
+	cols = [
+		'region_name',
+		'chromosome',
+		'chr_start',
+		'chr_stop',
+		'scaffold_role',
+		'scaffold_GB_acc',
+		'scaffold_RS_acc',
+		'assembly_unit'
+	];
+	def __init__(self):
+		self.region_name = ''
+		self.chromosome = ''
+		self.chr_start = 0
+		self.chr_stop = 0
+		self.scaffold_role = ''
+		self.scaffold_GB_acc = ''
+		self.scaffold_RS_acc = ''
+		self.assembly_unit = ''
+	def __repr__(self):
+        	from pprint import pformat
+        	return pformat(vars(self))
+	def sort_key(self):
+		return self.region_name
+
 def read_grc_regions(filename):
-	placements = []
+	regions = []
 	f = open(filename, "r")
-	count = 0
+	num_cols = len(Region.cols)
 	for line in iter(f):
-	    count = count + 1
-	print filename, 'lines:', count
-	return 0
+		if line[0] == '#':
+			continue
+		d = line.split("\t")
+		r = Region()
+		for i in range(0, num_cols):
+		    setattr(r, Region.cols[i], d[i])
+		regions.append(r)
+		#print p.alt_name , p.parent_name, p.parent_start, p.parent_stop
+	f.close()
+	return regions
 
 def get_parents(placements):
 	parents = set()

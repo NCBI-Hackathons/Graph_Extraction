@@ -1,3 +1,6 @@
 [submodule "SVGen"]
 	path = SVGen
 	url = https://github.com/WGLab/SVGen
+[submodule "TwoPaCo"]
+	path = TwoPaCo
+	url = https://github.com/medvedevgroup/TwoPaCo

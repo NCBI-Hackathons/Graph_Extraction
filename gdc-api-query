@@ -1,0 +1,39 @@
+{
+    "op": "and",
+        "content": [
+        {
+            "op" : "=" ,
+            "content" : {
+                "field" : "annotation.notes" ,
+                "value" : [ "Tumor Adjacent Normal" ]
+            }
+        },
+        {
+            "op" : "=" ,
+            "content" : {
+                "field" : "file.data_format" ,
+                "value" : [ "VCF" ]
+            }
+        }
+        ]
+}
+{
+    "op" : "and" ,
+        "content" : [{
+            "op" : "in" ,
+            "content" : {
+                "field" : "annotations.notes" ,
+                "value" : [
+                    "Tumor Adjacent Normal"
+                ]
+            }
+        }, {
+            "op" : "in" ,
+            "content" : {
+                "field" : "files.data_format" ,
+                "value" : [
+                    "VCF"
+                ]
+            }
+        }]
+}

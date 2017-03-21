@@ -28,14 +28,9 @@ Perhaps a little code snippet.
     my $foo = Bio::Graph::Parser->new();
     ...
 
-=head1 EXPORT
-
-A list of functions that can be exported.  You can delete this section
-if you don't export anything, such as for a purely object-oriented module.
-
 =head1 SUBROUTINES/METHODS
 
-=head2 function1
+=head2 new()
 
 =cut
 
@@ -47,6 +42,20 @@ sub function1 {
 =cut
 
 sub function2 {
+}
+
+# Internals
+
+sub _initialize {
+    my($self, @args) = @_;
+    $self->{'_handler'} = undef;
+
+    $self->get_params; # Initialize the default parameters.
+
+    my ($nen,$ini) = $self->_rearrange
+
+    $self->_initialize_io(@args);
+    #$self->debug_params;
 }
 
 =head1 AUTHOR

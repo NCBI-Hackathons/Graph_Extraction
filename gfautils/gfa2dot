@@ -1,0 +1,2 @@
+#!/bin/sh
+gfatools gfa2dot $@ | perl -pne 's/\[,/[/g'

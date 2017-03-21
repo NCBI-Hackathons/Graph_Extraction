@@ -1,5 +1,7 @@
 #! /usr/bin/python
 
+import pprint
+
 # file readers
 
 def read_seq_lengths(filename):
@@ -65,6 +67,11 @@ class MFA(object):
 		header.letter = 'H'
 		header.version = '1.0'
 		self.rows.append(header)
+	def add_comment(self, comment):
+		row = MFA_Row()
+		row.letter = '#'
+		row.comment = comment
+		self.rows.append(row)
 
 class MFA_Row(object):
 	def __init__(self):
@@ -81,7 +88,8 @@ class MFA_Row(object):
 		self.link_cigar = '0M'	
 	
 		self.version = ''
-	
+		self.comment = ''
+		
 	def to_string(self):
 		if self.letter == 'S':
 			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac
@@ -89,6 +97,8 @@ class MFA_Row(object):
 			return self.letter+'\t'+self.link_from_name+'\t'+self.link_from_strand+'\t'+self.link_to_name+'\t'+self.link_to_strand+'\t'+self.link_cigar	
 		elif self.letter == 'H':
 			return self.letter + '\t' + 'VN:Z:' + self.version
+		elif self.letter == '#':
+			return self.letter + self.comment
 		else:
 			return "mfa_row::to_string error: no letter"	
 	
@@ -99,13 +109,18 @@ def make_mfa_from_placements(placements, lengths):
         last_parent_stop = 0
 	sort_placements = sorted(placements, key=Placement.sort_key)
 
+	mfa.add_comment(parent_name)
+
 	# extract the parent segment starts 
 	for placement in sort_placements:
 		parent_seg_starts.append(placement.parent_start)
+		parent_seg_starts.append(placement.parent_stop+1)
 		last_parent_stop = max(last_parent_stop, placement.parent_stop)
 		#print placement.parent_start
 	parent_seg_starts.append(last_parent_stop+1)
 	parent_seg_starts.append(lengths[parent_name]+1)
+	parent_seg_starts = list(set(parent_seg_starts))
+	parent_seg_starts.sort()
 
 	# make alt segment rows
 	for placement in sort_placements:
@@ -118,6 +133,7 @@ def make_mfa_from_placements(placements, lengths):
 	
 	# make parent segment rows
 	parent_name_map = {}
+	parent_names = []
 	i = 0
 	for start in parent_seg_starts:
 		if i+1 == len(parent_seg_starts):
@@ -132,8 +148,24 @@ def make_mfa_from_placements(placements, lengths):
 		
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name
+		parent_names.append(row.sequence_name)
 		i += 1
+	#pprint.pprint(parent_name_map)
+	#pprint.pprint(parent_names)
 
+	# make parent-to-parent link rows
+	i = 0
+	for first in parent_names:
+		if i+1 == len(parent_names):
+			break
+		second = parent_names[i+1]
+		row = MFA_Row()
+		row.letter = 'L'
+		row.link_from_name = first
+		row.link_to_name = second
+		mfa.rows.append(row)
+		i += 1
+	
 	# make alt-to-parent link rows
 	for placement in sort_placements:
 		alt_in = MFA_Row()
@@ -174,8 +206,8 @@ parents = get_parents(placements)
 result_mfa = [];
 for parent in parents:
 	# do stuff
-	if parent != 'NC_000024.10':
-		continue
+	#if parent != 'NC_000024.10':
+	#	continue
 	curr_placements = []
 	for placement in placements:
 		if placement.parent_name == parent:

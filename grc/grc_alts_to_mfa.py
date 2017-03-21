@@ -97,7 +97,7 @@ class Region(object):
 def read_grc_regions(filename):
 	regions = []
 	f = open(filename, "r")
-	num_cols = length(Region.cols)
+	num_cols = len(Region.cols)
 	for line in iter(f):
 		if line[0] == '#':
 			continue

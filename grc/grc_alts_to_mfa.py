@@ -102,7 +102,7 @@ def read_grc_regions(filename):
 		if line[0] == '#':
 			continue
 		d = line.split("\t")
-		r = Range()
+		r = Region()
 		for i in range(0, num_cols):
 		    setattr(r, Region.cols[i], d[i])
 		regions.append(r)

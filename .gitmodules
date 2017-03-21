@@ -1,0 +1,3 @@
+[submodule "SVGen"]
+	path = SVGen
+	url = https://github.com/WGLab/SVGen

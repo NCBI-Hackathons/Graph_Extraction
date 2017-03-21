@@ -155,7 +155,11 @@ class MFA_Row(object):
 		self.link_from_strand = '+'
 		self.link_to_strand = '+'
 		self.link_cigar = '0M'	
-	
+			
+		self.path_name = ''
+		self.path_seq_names = []
+		self.path_seq_strands = []	
+
 		self.version = ''
 		self.comment = ''
 		
@@ -164,13 +168,23 @@ class MFA_Row(object):
 			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac + '\t' + 'LN:i:' + str(self.sequence_length)
 		elif self.letter == 'L':
 			return self.letter+'\t'+self.link_from_name+'\t'+self.link_from_strand+'\t'+self.link_to_name+'\t'+self.link_to_strand+'\t'+self.link_cigar	
+		elif self.letter == 'P':
+			result = 'P' +'\t'+self.path_name+'\t'
+			i = 0
+			for seq_name in self.path_seq_names:
+				strand = self.path_seq_strands[i]
+				if i != 0:
+					result += ','
+				result += seq_name
+				result += strand
+				i += 1
+			return result	
 		elif self.letter == 'H':
 			return self.letter + '\t' + 'VN:Z:' + self.version
 		elif self.letter == '#':
 			return self.letter + self.comment
 		else:
 			return "mfa_row::to_string error: no letter"	
-
 
 
 
@@ -330,9 +344,6 @@ fasta_sequences = {}
 from Bio import SeqIO
 for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
 	fasta_sequences[seq_record.id] = seq_record	
-	#print(seq_record.id)
-   	#print(repr(seq_record.seq))
-   	#print(len(seq_record))
 
 # calculate MFA segments, links, paths, for a given parent
 result_mfa = [];

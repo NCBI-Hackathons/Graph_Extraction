@@ -228,6 +228,7 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.sequence_stop = stop
 		row.sequence_length = (stop-start)+1
 		mfa.rows.append(row)
+                row.sequence_iupac = fasta_sequences[parent_name].seq[row.sequence_start:row.sequence_stop]
 		# TODO
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name

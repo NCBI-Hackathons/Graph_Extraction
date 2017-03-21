@@ -48,6 +48,14 @@ def read_grc_placements(filename):
 		p.parent_stop = int(d[12])
 		p.alt_tails[0] = int(d[13])
 		p.alt_tails[1] = int(d[14])
+		
+		if p.alt_orient == 'b':
+			p.alt_orient = '+'
+		if p.alt_orient == '-':
+			t = p.alt_tails[0]
+			p.alt_tails[0] = p.alt_tails[1]
+			p.alt_tails[1] = t
+
 		placements.append(p)
 		#print p.alt_name , p.parent_name, p.parent_start, p.parent_stop
 	f.close()
@@ -111,6 +119,17 @@ def make_mfa_from_placements(placements, lengths):
 
 	mfa.add_comment(parent_name)
 
+	tail_count = 0	
+	for placement in sort_placements:
+		tail_count += placement.alt_tails[0]
+		tail_count += placement.alt_tails[1]
+	if tail_count > 0:
+		dummy_gap_row = MFA_Row()
+		dummy_gap_row.letter = 'S'
+		dummy_gap_row.sequence_name = 'dummy_gap'
+		dummy_gap_row.sequence_iupac = 'NNNNNNNNNN'
+		mfa.rows.append(dummy_gap_row)
+
 	# extract the parent segment starts 
 	for placement in sort_placements:
 		parent_seg_starts.append(placement.parent_start)
@@ -168,21 +187,49 @@ def make_mfa_from_placements(placements, lengths):
 	
 	# make alt-to-parent link rows
 	for placement in sort_placements:
-		alt_in = MFA_Row()
-		alt_in.letter = 'L'
-		alt_in.link_from_name = parent_name_map[placement.parent_start-1]
-		alt_in.link_from_strand = '+'
-		alt_in.link_to_name = placement.alt_name
-		alt_in.link_to_strand = placement.alt_orient
-		mfa.rows.append(alt_in)
-		
-		alt_out = MFA_Row()
-		alt_out.letter = 'L'
-		alt_out.link_from_name = placement.alt_name
-		alt_out.link_from_strand = placement.alt_orient
-		alt_out.link_to_name = parent_name_map[placement.parent_stop+1]
-		alt_out.link_to_strand = '+'	
-		mfa.rows.append(alt_out)
+		if placement.alt_tails[0] == 0:
+			alt_in = MFA_Row()
+			alt_in.letter = 'L'
+			alt_in.link_from_name = parent_name_map[placement.parent_start-1]
+			alt_in.link_from_strand = '+'
+			alt_in.link_to_name = placement.alt_name
+			alt_in.link_to_strand = placement.alt_orient
+			mfa.rows.append(alt_in)
+		elif placement.alt_tails[0] > 0:
+			gap_in = MFA_Row()
+			alt_in = MFA_Row()
+			gap_in.letter = 'L'
+			gap_in.link_from_name = parent_name_map[placement.parent_start-1]
+			gap_in.link_to_name = 'dummy_gap'
+			alt_in.letter = 'L'
+			alt_in.link_from_name = 'dummy_gap'
+			alt_in.link_to_name = placement.alt_name
+			alt_in.link_to_strand = placement.alt_orient
+			mfa.rows.append(gap_in)
+			mfa.rows.append(alt_in)
+		#end
+
+		if placement.alt_tails[1] == 0:	
+			alt_out = MFA_Row()
+			alt_out.letter = 'L'
+			alt_out.link_from_name = placement.alt_name
+			alt_out.link_from_strand = placement.alt_orient
+			alt_out.link_to_name = parent_name_map[placement.parent_stop+1]
+			alt_out.link_to_strand = '+'	
+			mfa.rows.append(alt_out)
+		elif placement.alt_tails[1] > 0:
+			alt_out = MFA_Row()
+			gap_out = MFA_Row()
+			alt_out.letter = 'L'
+			alt_out.link_from_name = placement.alt_name
+			alt_out.link_from_strand = placement.alt_orient
+			alt_out.link_to_name = 'dummy_out'
+			gap_out.letter = 'L'
+			gap_out.link_from_name = 'dummy_out'
+			gap_out.link_to_name = parent_name_map[placement.parent_stop+1]
+			mfa.rows.append(alt_out)
+			mfa.rows.append(gap_out)
+		#end
 	return mfa
 
 

@@ -125,7 +125,6 @@ class MFA(object):
 		header.letter = 'H'
 		header.version = '1.0'
 		self.rows.append(header)
-		mfa_gap_counter = 1
 	def add_comment(self, comment):
 		row = MFA_Row()
 		row.letter = '#'

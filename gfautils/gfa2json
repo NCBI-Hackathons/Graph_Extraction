@@ -76,6 +76,11 @@ sub worker {
 			my %sequence :shared;
 			$sequence{"sequence"} = $2;
 			push @metadata, \%sequence;
+			if (/LN:i:(\d*)/) {
+			my %length :shared;
+			$length{"length"} = $2;
+			push @metadata, \%length;
+			}
 			$node{"metadata"} = \@metadata;
 			lock(@nodes);
 			push @nodes, \%node;

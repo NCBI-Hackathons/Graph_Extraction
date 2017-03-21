@@ -102,7 +102,7 @@ class MFA(object):
 		global mfa_gap_counter
 		gap_row = MFA_Row()
 		gap_row.letter = 'S'
-		gap_row.sequence_name = 'dummy_gap__' + str(mfa_gap_counter)
+		gap_row.sequence_name = 'synthetic_gap__' + str(mfa_gap_counter)
 		gap_row.sequence_iupac = 'NNNNNNNNNN'
 		gap_row.sequence_length = 10
 		self.rows.append(gap_row)
@@ -115,11 +115,11 @@ class MFA_Row(object):
 		self.sequence_name = ''
 		self.sequence_start = 0
 		self.sequence_stop = 0
-		self.sequence_iupac = 'unsetunsetunset'
+		self.sequence_iupac = '*' # unset
 		self.sequence_length = 0	
 	
-		self.link_from_name= 'unset'
-		self.link_to_name = 'unset'
+		self.link_from_name= '*' # unset
+		self.link_to_name = '*' # unset
 		self.link_from_strand = '+'
 		self.link_to_strand = '+'
 		self.link_cigar = '0M'	
@@ -176,7 +176,8 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.sequence_start = 0
 		row.sequence_stop = lengths[placement.alt_name] - 1
 		row.sequence_length = lengths[placement.alt_name]
-		# LIN HERE
+                row.sequence_iupac = fasta_sequences[parent_name].seq[row.sequence_start:row.sequence_stop]
+		# TODO
 		mfa.rows.append(row)
 	
 	# make parent segment rows
@@ -194,7 +195,7 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.sequence_stop = stop
 		row.sequence_length = (stop-start)+1
 		mfa.rows.append(row)
-		# LIN HERE
+		# TODO
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name
 		parent_names.append(row.sequence_name)

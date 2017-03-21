@@ -21,12 +21,14 @@ my @nodes :shared;
 my @edges :shared;
 my $procs = 1;
 my $sensitive = 0;
+my $seqLabel = 0;
 
 my %jg = ("graph" => {});
 
 GetOptions (
     'processes:+'   => \$procs,
     'sensitive'     => \$sensitive,
+    'seqlabel'      => \$seqLabel,
     'help'          => \$help,
 )
     or die pod2usage(                   # Print documentation and quit if bad opts
@@ -62,7 +64,19 @@ sub worker {
 		if (/^S\t(\S*)\t(\*|[A-Za-z=.]+)/) {
 			my %node :shared;
 			$node{"id"} = $1;
-			$node{"label"} = $2;
+			my @metadata :shared;
+			my %value :shared;
+			$value{"group"} = "default";
+			push @metadata, \%value;
+			if ($seqLabel) {
+				$node{"label"} = $2;
+			} else {
+				$node{"label"} = $node{"id"};
+			}
+			my %sequence :shared;
+			$sequence{"sequence"} = $2;
+			push @metadata, \%sequence;
+			$node{"metadata"} = \@metadata;
 			lock(@nodes);
 			push @nodes, \%node;
 			next;
@@ -73,6 +87,11 @@ sub worker {
 			my %edge :shared;
 			$edge{"source"} = $L[1];
 			$edge{"target"} = $L[3];
+			my @metadata :shared;
+			my %value :shared;
+			$value{"value"} = 1;
+			push @metadata, \%value;
+			$edge{"metadata"} = \@metadata;
 			lock(@edges);
 			push @edges, \%edge;
 			next;
@@ -91,6 +110,11 @@ sub worker {
 				$edge{"source"} = $prev_node;
 				$edge{"target"} = $curr_node;
 				$edge{"label"} = $label;
+				my @metadata :shared;
+				my %value :shared;
+				$value{"value"} = 1;
+				push @metadata, \%value;
+				$edge{"metadata"} = \@metadata;
 				push @edges, \%edge;
 				$prev_node = $curr_node;
 			}

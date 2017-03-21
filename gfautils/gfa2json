@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+use JSON;
+
+my @nodes;
+my @edges;
+
+my %jg = ("graph" => {});
+
+$SIG{'INT'} = \&end;
+$SIG{'QUIT'} = \&end;
+
+while (<>) {
+# # 	Comment
+	next if /^#/;
+# H 	Header
+	next if /^H/;
+# S 	Segment
+	if (/^S\t([!-)+-<>-~][!-~]*)\t(\*|[A-Za-z=.]+)/) {
+		push @nodes, ["id" => $1, "label" => $2];
+		next;
+	}
+# L 	Link
+	if (/^L\t([!-)+-<>-~][!-~]*)\t([+\-])\t([!-)+-<>-~][!-~]*)\t([+\-])\t\*|([0-9]+[MIDNSHPX=])+/) {
+		push @edges, ["source" => $1, "target" => $3];
+		next;
+	}
+# C 	Containment
+	next if /^C/;
+# P 	Path
+	if (/^P\t([!-)+-<>-~][!-~]*)\t([!-)+-<>-~][!-~]*)\t\*|([0-9]+[MIDNSHPX=])+/) {
+		my $label = $1;
+		my @nodes = split /[+\-],/, $2; # Throws out orientation
+		my $prev_node = pop @nodes;
+		while (my $curr_node = pop @nodes) {
+			push @edges, ["source" => $prev_node, "target" => $curr_node, "label" => $label];
+			$prev_node = $curr_node;
+		}
+	}
+	warn "Unrecognized line format!\n";
+}
+sub end {
+	$jg{"graph"}{"nodes"} = \@nodes;
+	$jg{"graph"}{"edges"} = \@edges;
+	print encode_json \%jg;
+	exit(0);
+}
+END { &end; }

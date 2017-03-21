@@ -17,7 +17,7 @@ __check_defined = \
 
 all: build install
 
-build: svgen
+build: svgen twopaco
 
 svgen:
 	$(MAKE) -C SVGen
@@ -25,6 +25,13 @@ svgen:
 install-svgen:
 	$(MAKE) -C SVGen install
 	install -m 0755 Simulation/generate_reads.sh $(BIN_INSTALL_PREFIX)
+
+twopaco:
+	cd TwoPaCo
+	mkdir build
+	cd build
+	cmake ../src
+	$(MAKE)
 
 clean:
 	git clean -f .

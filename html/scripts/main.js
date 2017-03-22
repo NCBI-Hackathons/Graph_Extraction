@@ -90,38 +90,38 @@
 	 .attr("height", height)
 	 .style("pointer-events", "all");
 
- document.getElementById('fileSelectorButton').onclick = function () {
-	 d3.json(document.getElementById('fileSelector').value, function(error, topgraph) {
+ document.getElementById('fdgSelectorButton').onclick = function () {
+	 d3.json(document.getElementById('fdgSelector').value, function(error, topgraph) {
 			 if (error) throw error;
 
 			 // Resolve the edges' source and target names
 			 var nodelist = [];
-			 topgraph.graph.nodes.forEach( function(node) {
+			 topgraph.graphs[0].nodes.forEach( function(node) {
 					 nodelist[node.id] = node;
 					 });
-			 topgraph.graph.edges.forEach( function(edge) {
+			 topgraph.graphs[0].edges.forEach( function(edge) {
 					 edge.source = nodelist[edge.source];
 					 edge.target = nodelist[edge.target];
 					 })
-			 topgraph.graph.edges = topgraph.graph.edges.filter(function (t) {return typeof t.source !== 'undefined' && typeof t.target !== 'undefined'});
+			 topgraph.graphs[0].edges = topgraph.graphs[0].edges.filter(function (t) {return typeof t.source !== 'undefined' && typeof t.target !== 'undefined'});
 
 			 // Load into a force-directed D3 layout
 			 force
-			 .nodes(topgraph.graph.nodes)
-			 .links(topgraph.graph.edges)
+			 .nodes(topgraph.graphs[0].nodes)
+			 .links(topgraph.graphs[0].edges)
 			 .start();
 
 
 			 // Render the edges
 			 var link = svg.selectAll(".link")
-				 .data(topgraph.graph.edges)
+				 .data(topgraph.graphs[0].edges)
 				 .enter().append("line")
 				 .attr("class", "link")
 				 .style("stroke-width", function(d) { return Math.sqrt(d.metadata.value); });
 
 			 // Render the nodes first
 			 var node = svg.selectAll(".node")
-				 .data(topgraph.graph.nodes)
+				 .data(topgraph.graphs[0].nodes)
 				 .enter()
 				 .append("g")
 				 .attr("class", "node")

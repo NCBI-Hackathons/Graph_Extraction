@@ -10,6 +10,14 @@ This is a toy example of a graph genome browser. We did the following:
     * [Sequence Tube Maps](https://github.com/wolfib/sequenceTubeMap)
     * Chord graphs
 
+## Dependencies
+
+* JSON.pm
+* python (2.x)
+* Web Server (Apache, nginx etc) for web components
+
 ## Installation
+
+TLDR: export SRV_INSTALL_PATH=/var/www && make build && make install
 
 1. Use the [Makefile]() to install SVGen and TuPaCo.

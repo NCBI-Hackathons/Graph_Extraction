@@ -41,7 +41,7 @@ unless ($sensitive) {
     $SIG{'INT'} = \&end;
     $SIG{'QUIT'} = \&end;
 }
-$SIG{'USR1'} = sub {print "Processing line no $lineno\n";};
+$SIG{'USR1'} = sub {print STDERR "Processing line no $lineno\n";};
 
 while (<>) {
     $lineno++;

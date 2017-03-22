@@ -31,8 +31,8 @@ export SRV_INSTALL_PATH=/var/www && make build && make install
 ## Contributors
 
 * Nathan Bouk
-* [John Didion](@jdidion)
-* [Lin DasSarma](@l1n)
+* [John Didion](https://github.com/jdidion)
+* [Lin DasSarma](https://github.com/l1n)
 * Paul Meric
 * Lisa Federer
 * Ben Busby

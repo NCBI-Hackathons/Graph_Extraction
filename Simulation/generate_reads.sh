@@ -1,29 +1,31 @@
 #!/bin/bash
+# Usage: ./generate_reads.sh <SVGen directory>
+SVGEN_BASE=$1
 CHROM=22
 CHROM_TRANS=1-21
-FASTA=reference/hg38.chromFa/chr22.fa
+FASTA=$SVGEN_BASE/reference/hg38.chromFa/chr22.fa
 
 for i in {1..1}
 do
-    python simulate_SV_BED.py \
-        --dup_lens SV_lengths.txt \
-        --del_lens SV_lengths.txt \
-        --inv_lens SV_lengths.txt \
-        --bal_trans_lens SV_lengths.txt \
-        --unb_trans_lens SV_lengths.txt \
+    simulate_SV_BED.py \
+        --dup_lens $SVGEN_BASE/SV_lengths.txt \
+        --del_lens $SVGEN_BASE/SV_lengths.txt \
+        --inv_lens $SVGEN_BASE/SV_lengths.txt \
+        --bal_trans_lens $SVGEN_BASE/SV_lengths.txt \
+        --unb_trans_lens $SVGEN_BASE/SV_lengths.txt \
         --chroms $CHROM \
         --chroms_trans $CHROM_TRANS \
-        --chrom_lens reference/chrom_lengths_hg38.txt \
-        --gaps reference/gaps_hg38.txt \
+        --chrom_lens $SVGEN_BASE/reference/chrom_lengths_hg38.txt \
+        --gaps $SVGEN_BASE/reference/gaps_hg38.txt \
         -o sample${i}_SVs.bed
-    python insert_SVs.py \
+    insert_SVs.py \
         -i $FASTA \
         -o sample${i}_SV.fa \
-        --chrom_lens reference/chrom_lengths_hg38.txt \
+        --chrom_lens $SVGEN_BASE/reference/chrom_lengths_hg38.txt \
         --chrom $CHROM \
         --bed sample${i}_SVs.bed \
         -v
-    python create_reads.py \
+    create_reads.py \
         -pe \
         -i sample${i}_SV.fa \
         -o sample${i}_reads.fq \

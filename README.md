@@ -18,6 +18,14 @@ This is a toy example of a graph genome browser. We did the following:
 
 ## Installation
 
-TLDR: export SRV_INSTALL_PATH=/var/www && make build && make install
+Use the [Makefile]() to install SVGen and TwoPaCo.
 
-1. Use the [Makefile]() to install SVGen and TuPaCo.
+```
+export SRV_INSTALL_PATH=/var/www && make build && make install
+```
+
+## Manuscript
+
+[Draft](https://docs.google.com/document/d/1mY2KMSLe1XM-KQ5Gd6FzxJmw2DAPLChPy-zluR6TMAk)
+
+## Contributions

@@ -90,8 +90,8 @@
 	 .attr("height", height)
 	 .style("pointer-events", "all");
 
- document.getElementById('fileSelectorButton').onclick = function () {
-	 d3.json(document.getElementById('fileSelector').value, function(error, topgraph) {
+ document.getElementById('fdgSelectorButton').onclick = function () {
+	 d3.json(document.getElementById('fdgSelector').value, function(error, topgraph) {
 			 if (error) throw error;
 
 			 // Resolve the edges' source and target names

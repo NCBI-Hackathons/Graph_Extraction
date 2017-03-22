@@ -56,7 +56,7 @@
         <div class="mdl-layout__tab-bar mdl-js-ripple-effect mdl-color--primary-dark">
           <a href="#overview" class="mdl-layout__tab is-active">Overview</a>
           <a href="hackathon_day2.pdf" class="mdl-layout__tab">About</a>
-          <a href="#features" class="mdl-layout__tab">FAQ</a>
+          <a href="#faq" class="mdl-layout__tab">FAQ</a>
           <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored mdl-shadow--4dp mdl-color--accent" id="add">
             <i class="material-icons" role="presentation">add</i>
             <span class="visuallyhidden">Add</span>
@@ -80,6 +80,27 @@
 		</form>
 		<svg></svg>
 		</div>
+              </div>
+            </div>
+          </section>
+        </div>
+        <div class="mdl-layout__tab-panel is-active" id="faq">
+          <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+            <div class="mdl-card mdl-cell mdl-cell--12-col">
+              <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
+                <h4 class="mdl-cell mdl-cell--12-col">FAQ</h4>
+                # Graphy McBrowserface
+                This is a toy example of a graph genome browser. We did the following:
+                1. Generate a population of chromosomes (GRCh38 chr22) with randomly-generated structural variants inserted, using [SVGen](http://svgen.openbioinformatics.org).
+                2. Build a population graph of the generated chromosomes plus the reference genome, using [TuPaCo](https://github.com/medvedevgroup/TwoPaCo). Dump the graph to [GFA](https://github.com/GFA-spec).
+                3. Create a GFA to [JSONGraph](https://github.com/jsongraph/json-graph-specification).
+                4. Implement several different Javascript-based viewers for JSONGraph data, using:
+                * Force-directed graph layout
+                * [Sequence Tube Maps](https://github.com/wolfib/sequenceTubeMap)
+                * Chord graphs
+                ## Installation
+                1. Use the [Makefile]() to install SVGen and TuPaCo.
+              </div>
               </div>
             </div>
           </section>

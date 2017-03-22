@@ -32,6 +32,18 @@ Use the [Makefile]() to install SVGen and TwoPaCo.
 export SRV_INSTALL_PATH=/var/www && make build && make install
 ```
 
+## Setup
+
+1. Generate sequences and assemble the graph
+
+```
+Simulation/generate_sequences.sh
+Simulation/assemble.sh
+```
+
+2. Start the server
+3. Browse to XXX
+
 ## Manuscript
 
 [Draft](https://docs.google.com/document/d/1mY2KMSLe1XM-KQ5Gd6FzxJmw2DAPLChPy-zluR6TMAk)

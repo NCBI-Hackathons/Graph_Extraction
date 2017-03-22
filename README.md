@@ -2,11 +2,11 @@
 
 This is a toy example of a graph genome browser.
 
-# Motivation
+## Motivation
 
 To date, the reference genome assemblies for most species, including human, have been represented as linear, haploid sequences. With the advent of population-scale sequencing, graph structures have been proposed as a better way to represent genomes. A graph has the advantage of naturally representing variation as forking edges (“bubbles”) and individuals as paths through the graph. Read alignment to graph genomes, and variant calling from those alignments, has been shown to be both more sensitive and more specific than using linear genomes. However, the migration to graph-based genomes is hindered by 1) the non-interoperability of most existing bioinformatics tools with sequence graphs; 2) the substantial challenge and degree of effort involved in adapting those tools; 3) new challenges in annotating and visualizing graph-based references and alignments. Genome browsers are among the most widely used tools among both novices and experts in genomics. To motivate the transition to graph genomes, we developed a simple graph-based genome browser that is accessible at http://graphymcbrowserface.umbc.in.
 
-# Results
+## Results
 
 We did the following:
 

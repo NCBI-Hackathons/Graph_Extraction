@@ -75,7 +75,7 @@ while (<>) {
             label => $seqLabel?$2:$1,
         );
         if (/LN:i:(\d*)/) {
-            $node{metadata}{"length"} = $2;
+            $node{metadata}{"length"} = $1;
         }
         push @nodes, \%node;
         next;

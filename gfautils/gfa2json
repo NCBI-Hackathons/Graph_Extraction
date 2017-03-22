@@ -49,6 +49,8 @@ while (<>) {
     next if /^#/;
 # H 	Header
     if (/^H/) {
+        shift @nodes;
+        shift @edges;
         $graph{"nodes"} = \@nodes;
         $graph{"edges"} = \@edges;
         push @{$jg{"graphs"}}, dclone \%graph;
@@ -124,6 +126,8 @@ while (<>) {
     warn "Unrecognized line format at line $lineno\n";
 }
 sub end {
+    shift @nodes;
+    shift @edges;
     $graph{"nodes"} = \@nodes;
     $graph{"edges"} = \@edges;
     push @{$jg{"graphs"}}, dclone \%graph;

@@ -135,9 +135,17 @@
 				 .text(function(d) { return d.label; })
 				 .style("stroke", color(0)).style("stroke-width","0").style("font-family", "Arial").style("font-size", 12);
 
-			 //force.linkStrength(function(link) {
+			// force.linkStrength(function(link) {
 			//		 return 1-1/link.source.metadata.length;
 			//		 });
+			 svg.call(d3.behavior.zoom()
+					 .translate([0, 0])
+					 .scale(1.0)
+					 .scaleExtent([0.5, 8.0])
+					 .on("zoom", function() {
+						 svg.attr("transform", "translate(" + d3.event.translate[0] + "," + d3.event.translate[1] + ") scale(" + d3.event.scale + ")")
+						 })
+				 )
 
 			 // Force-directed layout functions
 			 force.on("tick", function() {

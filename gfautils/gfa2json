@@ -41,21 +41,22 @@ unless ($sensitive) {
     $SIG{'QUIT'} = \&end;
 }
 
-my $lineno = 1;
+my $lineno = 0;
 while (<>) {
+    $lineno++;
 # # 	Comment
     next if /^#/;
 # H 	Header
     if (/^H/) {
         $graph{"nodes"} = \@nodes;
         $graph{"edges"} = \@edges;
-        push @$jg{"graphs"}, dclone \%graph;
+        push @{$jg{"graphs"}}, dclone \%graph;
         %graph = (
             directed    =>  1,
             metadata    => {
                 paths    => [],
             },
-            );
+        );
         @nodes = [];
         @edges = [];
         next;
@@ -117,10 +118,10 @@ while (<>) {
             push @path, \%edge;
             $prev_node = $curr_node;
         }
-        push @$graph{metadata}{paths}, @path;
+        push @{$graph{metadata}{paths}}, @path;
+        next;
     }
     warn "Unrecognized line format at line $lineno\n";
-    $lineno++;
 }
 sub end {
     $graph{"nodes"} = \@nodes;

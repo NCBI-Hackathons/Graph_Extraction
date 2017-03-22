@@ -168,3 +168,33 @@ sub end {
     exit(0);
 }
 END { &end unless $ended; }
+
+__END__
+
+=head1 NAME
+
+GFA to JSON(Graph) Converter
+
+=head1 SYNOPSIS
+
+gfa2json [--sensitive --seqlabel] infile.gfa > outfile.json
+
+=head1 OPTIONS
+
+=over 12
+
+=item B<--sensitive>
+
+Interrupts kill without flushing temporary data
+
+=item B<--seqlabel>
+
+Set labels to sequence data
+
+=back
+
+=head1 DESCRIPTION
+
+B<This program> will convert GFA files to a JSONGraph format.
+
+=cut

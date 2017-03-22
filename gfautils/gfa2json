@@ -107,7 +107,7 @@ while (<>) {
                 source => $1,
                 target => $3,
                 label => $label,
-                metadata => }
+                metadata => {
                     value => 1,
                     sourceOrientation  => $2,
                     targetOrientation  => $4,

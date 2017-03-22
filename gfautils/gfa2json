@@ -83,11 +83,11 @@ while (<>) {
         my %edge = (
             source => $L[1],
             target => $L[3],
-            metadata => (
+            metadata => {
                 value => 1,
                 sourceOrientation  => $L[2],
                 targetOrientation  => $L[4],
-            ),
+            },
         );
         push @edges, \%edge;
         next;
@@ -107,11 +107,11 @@ while (<>) {
                 source => $1,
                 target => $3,
                 label => $label,
-                metadata => [
+                metadata => }
                     value => 1,
                     sourceOrientation  => $2,
                     targetOrientation  => $4,
-                ],
+                },
             );
             push @edges, \%edge;
             push @path, \%edge;

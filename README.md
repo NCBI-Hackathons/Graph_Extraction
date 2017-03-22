@@ -32,7 +32,7 @@ export SRV_INSTALL_PATH=/var/www && make build && make install
 
 * Nathan Bouk
 * [John Didion](@jdidion)
-* Lin DasSarma
+* [Lin DasSarma](@l1n)
 * Paul Meric
 * Lisa Federer
 * Ben Busby

@@ -83,6 +83,24 @@
                         </div>
                     </div>
                 </section>
+		<section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
+                    <div class="mdl-card mdl-cell mdl-cell--12-col">
+                        <div class="mdl-card__supporting-text mdl-grid mdl-grid--no-spacing">
+                            <h4 class="mdl-cell mdl-cell--12-col">sequenceTubeMap</h4>
+                            <form action="#">
+                                <div class="mdl-textfield mdl-js-textfield">
+                                    <input class="mdl-textfield__input" type="text" id="stmSelector" value="json/chr_all_prim_paths.json" />
+                                    <label class="mdl-textfield__label" for="stmSelector">Path</label>
+                                </div>
+                                <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" id="stmSelectorButton">
+                                    Load
+                                </button>
+                            </form>
+                            <svg></svg>
+                        </div>
+                    </div>
+                </section>
+
             </div>
             <div class="mdl-layout__tab-panel" id="faq">
                 <section class="section--center mdl-grid mdl-grid--no-spacing mdl-shadow--2dp">
@@ -120,7 +138,8 @@
             <script src="//code.getmdl.io/1.2.1/material.min.js"></script>
             <!-- build:js scripts/main.min.js -->
             <script type="text/javascript" src="//d3js.org/d3.v3.js"></script>
-            <script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+            <script type="text/javascript" src="//marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
+            <script type="text/javascript" src="scripts/sequenceTubeMap.js"></script>
 
             <!-- <script src="https://d3js.org/d3-dispatch.v1.js"></script>
             <script src="https://d3js.org/d3-ease.v1.min.js"></script>

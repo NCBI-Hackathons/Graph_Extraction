@@ -55,6 +55,7 @@ install-vg:
 install-webs:
 	@:$(call check_defined, SRV_INSTALL_PREFIX, web component install directory)
 	cp -R html/* $(SRV_INSTALL_PREFIX)
+	install sequenceTubeMap/app/scripts/tubemap.js $(SRV_INSTALL_PREFIX)/scripts
 
 
 .PHONY: install install-mfa install-gfa install-vg

@@ -4,3 +4,6 @@
 [submodule "TwoPaCo"]
 	path = TwoPaCo
 	url = https://github.com/medvedevgroup/TwoPaCo
+[submodule "sequenceTubeMap"]
+	path = sequenceTubeMap
+	url = https://github.com/wolfib/sequenceTubeMap

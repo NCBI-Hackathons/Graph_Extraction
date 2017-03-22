@@ -28,4 +28,11 @@ export SRV_INSTALL_PATH=/var/www && make build && make install
 
 [Draft](https://docs.google.com/document/d/1mY2KMSLe1XM-KQ5Gd6FzxJmw2DAPLChPy-zluR6TMAk)
 
-## Contributions
+## Contributors
+
+* Nathan Bouk
+* [John Didion](@jdidion)
+* Lin DasSarma
+* Paul Meric
+* Lisa Federer
+* Ben Busby

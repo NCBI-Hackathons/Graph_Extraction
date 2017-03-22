@@ -155,7 +155,11 @@ class MFA_Row(object):
 		self.link_from_strand = '+'
 		self.link_to_strand = '+'
 		self.link_cigar = '0M'	
-	
+			
+		self.path_name = ''
+		self.path_seq_names = []
+		self.path_seq_strands = []	
+
 		self.version = ''
 		self.comment = ''
 		
@@ -164,13 +168,23 @@ class MFA_Row(object):
 			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac + '\t' + 'LN:i:' + str(self.sequence_length)
 		elif self.letter == 'L':
 			return self.letter+'\t'+self.link_from_name+'\t'+self.link_from_strand+'\t'+self.link_to_name+'\t'+self.link_to_strand+'\t'+self.link_cigar	
+		elif self.letter == 'P':
+			result = 'P' +'\t'+self.path_name+'\t'
+			i = 0
+			for seq_name in self.path_seq_names:
+				strand = self.path_seq_strands[i]
+				if i != 0:
+					result += ','
+				result += seq_name
+				result += strand
+				i += 1
+			return result	
 		elif self.letter == 'H':
 			return self.letter + '\t' + 'VN:Z:' + self.version
 		elif self.letter == '#':
 			return self.letter + self.comment
 		else:
 			return "mfa_row::to_string error: no letter"	
-
 
 
 
@@ -208,7 +222,10 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.sequence_start = 0
 		row.sequence_stop = lengths[placement.alt_name] - 1
 		row.sequence_length = lengths[placement.alt_name]
-                row.sequence_iupac = fasta_sequences[placement.alt_name].seq[row.sequence_start:row.sequence_stop]
+                if fasta_sequences:
+			row.sequence_iupac = fasta_sequences[placement.alt_name].seq[row.sequence_start:row.sequence_stop]
+		else:
+			row.sequence_iupac = 'notset_notset'
 		# TODO
 		mfa.rows.append(row)
 	
@@ -227,7 +244,10 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.sequence_stop = stop
 		row.sequence_length = (stop-start)+1
 		mfa.rows.append(row)
-                row.sequence_iupac = fasta_sequences[parent_name].seq[row.sequence_start:row.sequence_stop]
+		if fasta_sequences:
+			row.sequence_iupac = fasta_sequences[parent_name].seq[row.sequence_start:row.sequence_stop]
+		else:
+			row.sequence_iupac = 'notset_notset'
 		# TODO
 		parent_name_map[start] = row.sequence_name
 		parent_name_map[stop] = row.sequence_name
@@ -249,6 +269,14 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		row.link_to_name = second
 		mfa.rows.append(row)
 		i += 1
+	# make parent straight path row
+	parent_path = MFA_Row()
+	parent_path.letter = 'P'
+	parent_path.path_name = parent_name + '__PRIMARY'
+	for seq_name in parent_names:
+		parent_path.path_seq_names.append(seq_name)
+		parent_path.path_seq_strands.append('+')
+	mfa.rows.append(parent_path)
 	
 	# make alt-to-parent link rows
 	for placement in sort_placements:
@@ -328,11 +356,8 @@ parents = get_parents(placements)
 fasta_file_name = '/home/ubuntu/grc_data/GCF_000001405.36_GRCh38.p10_genomic.fna'
 fasta_sequences = {}
 from Bio import SeqIO
-for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
-	fasta_sequences[seq_record.id] = seq_record	
-	#print(seq_record.id)
-   	#print(repr(seq_record.seq))
-   	#print(len(seq_record))
+#for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
+#	fasta_sequences[seq_record.id] = seq_record	
 
 # calculate MFA segments, links, paths, for a given parent
 result_mfa = [];

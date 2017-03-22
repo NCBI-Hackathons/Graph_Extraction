@@ -112,7 +112,7 @@ while (<>) {
         my @path;
         while (my $curr_node = pop @nodes) {
             $_ = $prev_node . ' ' . $curr_node;
-	    /(.*?)([+\-]) (.*?)([+\-])/;
+	    /^(.*?)([+\-]) (.*?)([+\-])$/;
             my %edge;
             if ($4) {
                 %edge = (
@@ -126,7 +126,7 @@ while (<>) {
                     },
                 );
             } else {
-                /(.*?) (.*?)/;
+                /^(.*?) (.*?)$/;
                 %edge = (
                     source => abs $1,
                     target => abs $2,

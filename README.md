@@ -29,7 +29,7 @@ We did the following:
 Use the [Makefile]() to install SVGen and TwoPaCo.
 
 ```
-export SRV_INSTALL_PATH=/var/www && make build && make install
+export SRV_INSTALL_PATH=/var/www && make build && sudo -E make install
 ```
 
 ## Setup
@@ -38,9 +38,9 @@ export SRV_INSTALL_PATH=/var/www && make build && make install
 
 ```
 # Generate a graph from 12 simulated sequences
-export SVGEN_BASE=~/SVGen
-Simulation/generate_sequences.sh $SVGEN_BASE 12
-Simulation/assemble.sh $SVGEN_BASE
+export $SVGEN_BASE
+svgen_generate_sequences $SVGEN_BASE 12
+svgen_assemble $SVGEN_BASE
 ```
 
 2. Start the server

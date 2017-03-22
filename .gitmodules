@@ -10,3 +10,11 @@
 	path = TwoPaCo
 	url = https://github.com/medvedevgroup/TwoPaCo
 	branch = master
+[submodule "gfatools"]
+	path = gfatools
+	url = https://github.com/lh3/gfatools
+	branch = master
+[submodule "k8"]
+	path = k8
+	url = https://github.com/attractivechaos/k8/
+	branch = master

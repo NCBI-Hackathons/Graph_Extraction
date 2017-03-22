@@ -159,4 +159,12 @@
 					 });
 	 });
  };
+
+ document.getElementById('stmSelectorButton').onclick = function () {
+	// tracks?
+	// svg selector?
+
+	sequenceTubeMap.create("#svg", inputNodes, inputTracks1);
+ 
+ };
 })();

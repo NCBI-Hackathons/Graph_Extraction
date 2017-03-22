@@ -22,6 +22,7 @@ my @edges;
 my $procs = 1;
 my $sensitive = 0;
 my $seqLabel = 0;
+my $lineno = 0;
 
 my %jg = ("graphs" => []);
 my %graph;
@@ -40,8 +41,8 @@ unless ($sensitive) {
     $SIG{'INT'} = \&end;
     $SIG{'QUIT'} = \&end;
 }
+$SIG{'USR1'} = sub {print "Processing line no $lineno\n";};
 
-my $lineno = 0;
 while (<>) {
     $lineno++;
 # # 	Comment

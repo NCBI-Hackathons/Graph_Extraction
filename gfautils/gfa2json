@@ -58,8 +58,8 @@ while (<>) {
                 paths    => [],
             },
         );
-        @nodes = [];
-        @edges = [];
+        @nodes = undef;
+        @edges = undef;
         next;
     }
 # S 	Segment

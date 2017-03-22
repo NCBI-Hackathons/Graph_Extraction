@@ -38,10 +38,10 @@ update-repo:
 	git reset --hard
 	git pull origin master
 
-install: install-svgen install-mfa install-gfa install-vg install-webs
+install: install-svgen install-grc install-gfa install-vg install-webs
 
-install-mfa:
-	install -m 0755 grc/grc2mfa $(BIN_INSTALL_PREFIX)
+install-grc:
+	install -m 0755 grc/grc2gfa $(BIN_INSTALL_PREFIX)
 
 install-gfa:
 	install -m 0755 gfautils/gfa2dot $(BIN_INSTALL_PREFIX)
@@ -58,4 +58,4 @@ install-webs:
 	install sequenceTubeMap/app/scripts/tubemap.js $(SRV_INSTALL_PREFIX)/scripts
 
 
-.PHONY: install install-mfa install-gfa install-vg
+.PHONY: install install-grc install-gfa install-vg

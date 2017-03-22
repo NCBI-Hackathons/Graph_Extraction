@@ -413,8 +413,8 @@ parents = get_parents(placements)
 fasta_file_name = '/home/ubuntu/grc_data/GCF_000001405.36_GRCh38.p10_genomic.fna'
 fasta_sequences = {}
 from Bio import SeqIO
-#for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
-#	fasta_sequences[seq_record.id] = seq_record	
+for seq_record in SeqIO.parse(fasta_file_name, "fasta"):
+	fasta_sequences[seq_record.id] = seq_record	
 
 # calculate MFA segments, links, paths, for a given parent
 result_mfa = [];

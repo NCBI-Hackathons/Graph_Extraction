@@ -140,7 +140,8 @@ sub end {
     $graph{"edges"} = \@edges;
     push @{$jg{"graphs"}}, dclone \%graph;
     shift @{$jg{"graphs"}};
-    print encode_json \%jg;
+    my $json = encode_json \%jg;
+    print $json;
     exit(0);
 }
 END { &end; }

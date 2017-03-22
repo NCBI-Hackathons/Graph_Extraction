@@ -126,8 +126,8 @@ while (<>) {
 sub end {
     $graph{"nodes"} = \@nodes;
     $graph{"edges"} = \@edges;
-    push @$jg{"graphs"}, dclone \%graph;
-    shift @$jg{"graphs"};
+    push @{$jg{"graphs"}}, dclone \%graph;
+    shift @{$jg{"graphs"}};
     print encode_json \%jg;
     exit(0);
 }

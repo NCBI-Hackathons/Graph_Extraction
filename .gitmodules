@@ -6,3 +6,7 @@
 	path = SVGen
 	url = https://github.com/WGLab/SVGen
 	branch = master
+[submodule "TwoPaCo"]
+	path = TwoPaCo
+	url = https://github.com/medvedevgroup/TwoPaCo
+	branch = master

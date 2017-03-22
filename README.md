@@ -37,8 +37,10 @@ export SRV_INSTALL_PATH=/var/www && make build && make install
 1. Generate sequences and assemble the graph
 
 ```
-Simulation/generate_sequences.sh
-Simulation/assemble.sh
+# Genearate a graph from 12 simulated sequences
+export SVGEN_BASE=~/SVGen
+Simulation/generate_sequences.sh $SVGEN_BASE 12
+Simulation/assemble.sh $SVGEN_BASE
 ```
 
 2. Start the server

@@ -1,6 +1,12 @@
 #! /usr/bin/python
 
 import pprint
+import sys
+import getopt
+import argparse
+import collections
+
+
 import urllib
 import Bio
 
@@ -22,7 +28,7 @@ def read_seq_lengths(filename):
 class Placement(object):
 	def __init__(self):
 		self.alt_name = ''
-		self.alt_orient = ''
+		self.alt_strand = ''
 		self.alt_asm = ''
 		self.parent_name = ''
 		self.parent_asm = ''
@@ -43,12 +49,13 @@ def read_grc_placements(filename):
 		if line[0] == '#':
 			continue
 		d = line.split("\t")
+		# silently skipping anything that isnt alt-to-primary
 		if d[1] != 'Primary Assembly':
 			continue
 		p = Placement()
 		p.alt_name = d[3]
 		p.alt_asm = d[0]
-		p.alt_orient = d[8]
+		p.alt_strand = d[8]
 		p.parent_name = d[6]
 		p.parent_asm = d[1]
 		p.parent_start = int(d[11])
@@ -56,9 +63,9 @@ def read_grc_placements(filename):
 		p.alt_tails[0] = int(d[13])
 		p.alt_tails[1] = int(d[14])
 		
-		if p.alt_orient == 'b':
-			p.alt_orient = '+'
-		if p.alt_orient == '-':
+		if p.alt_strand == 'b':
+			p.alt_strand = '+'
+		if p.alt_strand == '-':
 			t = p.alt_tails[0]
 			p.alt_tails[0] = p.alt_tails[1]
 			p.alt_tails[1] = t
@@ -167,7 +174,10 @@ class MFA_Row(object):
 		if self.letter == 'S':
 			return self.letter + '\t' + self.sequence_name + '\t' + self.sequence_iupac + '\t' + 'LN:i:' + str(self.sequence_length)
 		elif self.letter == 'L':
-			return self.letter+'\t'+self.link_from_name+'\t'+self.link_from_strand+'\t'+self.link_to_name+'\t'+self.link_to_strand+'\t'+self.link_cigar	
+			result = 'L' +'\t'+self.link_from_name+'\t'+self.link_from_strand
+			result += '\t'+self.link_to_name+'\t'+self.link_to_strand
+			result += '\t'+self.link_cigar
+			return result
 		elif self.letter == 'P':
 			result = 'P' +'\t'+self.path_name+'\t'
 			i = 0
@@ -203,6 +213,8 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		tail_count += placement.alt_tails[0]
 		tail_count += placement.alt_tails[1]
 
+	start_stop_map = collections.OrderedDict()
+	
 	# extract the parent segment starts 
 	for placement in sort_placements:
 		parent_seg_starts.append(placement.parent_start)
@@ -216,6 +228,8 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 
 	# make alt segment rows
 	for placement in sort_placements:
+		start_stop_map[placement.parent_start] = placement.parent_stop
+		start_stop_map[placement.parent_stop] = placement.parent_start
 		row = MFA_Row()
 		row.letter = 'S'
 		row.sequence_name = placement.alt_name
@@ -230,13 +244,15 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		mfa.rows.append(row)
 	
 	# make parent segment rows
-	parent_name_map = {}
+	parent_name_map = collections.OrderedDict()
 	parent_names = []
 	i = 0
 	for start in parent_seg_starts:
 		if i+1 == len(parent_seg_starts):
 			break
 		stop = parent_seg_starts[i+1] - 1
+		start_stop_map[start] = stop
+		start_stop_map[stop] = start
 		row = MFA_Row()
 		row.letter = 'S'
 		row.sequence_name = parent_name + '__' + str(i+1) + '__'+str(start)+'_'+str(stop)
@@ -253,6 +269,7 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 		parent_name_map[stop] = row.sequence_name
 		parent_names.append(row.sequence_name)
 		i += 1
+	#parent_name_map = collections.OrderedDict(parent_name_map)
 
 	#pprint.pprint(parent_name_map)
 	#pprint.pprint(parent_names)
@@ -279,6 +296,7 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 	mfa.rows.append(parent_path)
 	
 	# make alt-to-parent link rows
+	start_gap_map = collections.OrderedDict()
 	for placement in sort_placements:
 		#pprint.pprint(placement)
 
@@ -288,10 +306,11 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 			alt_in.link_from_name = parent_name_map[placement.parent_start-1]
 			alt_in.link_from_strand = '+'
 			alt_in.link_to_name = placement.alt_name
-			alt_in.link_to_strand = placement.alt_orient
+			alt_in.link_to_strand = placement.alt_strand
 			mfa.rows.append(alt_in)
 		elif placement.alt_tails[0] > 0:
 			gap_name = mfa.make_gap()
+			start_gap_map[placement.parent_start] = gap_name
 			gap_in = MFA_Row()
 			alt_in = MFA_Row()
 			gap_in.letter = 'L'
@@ -300,7 +319,7 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 			alt_in.letter = 'L'
 			alt_in.link_from_name = gap_name
 			alt_in.link_to_name = placement.alt_name
-			alt_in.link_to_strand = placement.alt_orient
+			alt_in.link_to_strand = placement.alt_strand
 			mfa.rows.append(gap_in)
 			mfa.rows.append(alt_in)
 		#end
@@ -309,25 +328,63 @@ def make_mfa_from_placements(placements, lengths, fasta_sequences):
 			alt_out = MFA_Row()
 			alt_out.letter = 'L'
 			alt_out.link_from_name = placement.alt_name
-			alt_out.link_from_strand = placement.alt_orient
+			alt_out.link_from_strand = placement.alt_strand
 			alt_out.link_to_name = parent_name_map[placement.parent_stop+1]
 			alt_out.link_to_strand = '+'	
 			mfa.rows.append(alt_out)
 		elif placement.alt_tails[1] > 0:
 			gap_name = mfa.make_gap()
+			start_gap_map[placement.parent_stop] = gap_name
 			alt_out = MFA_Row()
 			gap_out = MFA_Row()
 			alt_out.letter = 'L'
 			alt_out.link_from_name = placement.alt_name
-			alt_out.link_from_strand = placement.alt_orient
+			alt_out.link_from_strand = placement.alt_strand
 			alt_out.link_to_name = gap_name
 			gap_out.letter = 'L'
 			gap_out.link_from_name = gap_name
 			gap_out.link_to_name = parent_name_map[placement.parent_stop+1]
 			mfa.rows.append(alt_out)
 			mfa.rows.append(gap_out)
-		#end
-	return mfa
+		#end alt-prim link rows
+
+	# per-alt-loci Path rows	
+	placement_asm_map = {}
+	for placement in sort_placements:
+		if placement.alt_asm not in placement_asm_map:
+			placement_asm_map[placement.alt_asm] = []
+		placement_asm_map[placement.alt_asm].append(placement)
+	for alt_asm_name in placement_asm_map:
+		alt_asm_placements = placement_asm_map[alt_asm_name]
+		path_row = MFA_Row()
+		path_row.letter = 'P'
+		path_row.path_name = parent_name+'__'+alt_asm_name
+		last_start = -1
+		for placement in alt_asm_placements:
+			for start in parent_name_map:
+				if start > last_start and start < placement.parent_start : 
+					path_row.path_seq_names.append(parent_name_map[start])
+					path_row.path_seq_strands.append('+')
+					last_start = start_stop_map[start] # skip the 'stop' values in parent_name_map
+			if placement.parent_start in start_gap_map:
+				path_row.path_seq_names.append(start_gap_map[placement.parent_start])
+				path_row.path_seq_strands.append('+')
+			path_row.path_seq_names.append(placement.alt_name)
+			path_row.path_seq_strands.append(placement.alt_strand)
+			if placement.parent_stop in start_gap_map:
+				path_row.path_seq_names.append(start_gap_map[placement.parent_stop])
+				path_row.path_seq_strands.append('+')
+			last_start = placement.parent_stop	
+			#end placement
+		# from last alt to end of primary
+		for start in parent_name_map:
+			if start > last_start: 
+				path_row.path_seq_names.append(parent_name_map[start])
+				path_row.path_seq_strands.append('+')
+				last_start = start_stop_map[start] # skip the 'stop' values in parent_name_map
+		mfa.rows.append(path_row)
+		#end alt_asm
+	return mfa  	# end make_mfa_from_placements
 
 
 # output 

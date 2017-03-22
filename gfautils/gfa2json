@@ -113,16 +113,35 @@ while (<>) {
         while (my $curr_node = pop @nodes) {
             $_ = $prev_node . ' ' . $curr_node;
 	    /(.*?)([+\-]) (.*?)([+\-])/;
-            my %edge = (
-                source => $1,
-                target => $3,
-                label => $label,
-                metadata => {
-                    value => 1,
-                    sourceOrientation  => $2,
-                    targetOrientation  => $4,
-                },
-            );
+            my %edge;
+            if ($4) {
+                %edge = (
+                    source => $1,
+                    target => $3,
+                    label => $label,
+                    metadata => {
+                        value => 1,
+                        sourceOrientation  => $2,
+                        targetOrientation  => $4,
+                    },
+                );
+            } else {
+                /(.*?) (.*?)/;
+                %edge = (
+                    source => abs $1,
+                    target => abs $2,
+                    label => $label,
+                    metadata => {
+                        value => 1,
+                        sourceOrientation  => '+',
+                        targetOrientation  => '+',
+                    },
+                );
+                $edge{metadata}{sourceOrientation} = '-' if $edge{source} =~ /-/;
+                $edge{metadata}{targetOrientation} = '-' if $edge{target} =~ /-/;
+                $edge{source} =~ y/+-//d;
+                $edge{target} =~ y/+-//d;
+            }
             push @edges, \%edge;
             push @path, \%edge;
             $prev_node = $curr_node;

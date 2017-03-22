@@ -103,9 +103,10 @@ while (<>) {
         my $label = $L[1];
         my @nodes = split /,/, $L[2];
         my $prev_node = pop @nodes;
-        my @path = [];
+        my @path;
         while (my $curr_node = pop @nodes) {
-            $prev_node . ' ' . $curr_node =~ /(.*?)([+\-]) (.*?)([+\-])/;
+            $_ = $prev_node . ' ' . $curr_node;
+	    /(.*?)([+\-]) (.*?)([+\-])/;
             my %edge = (
                 source => $1,
                 target => $3,
@@ -120,7 +121,7 @@ while (<>) {
             push @path, \%edge;
             $prev_node = $curr_node;
         }
-        push @{$graph{metadata}{paths}}, @path;
+        push @{$graph{metadata}{paths}}, \@path;
         next;
     }
     warn "Unrecognized line format at line $lineno\n";

@@ -73,7 +73,6 @@ while (<>) {
         );
         if (/LN:i:(\d*)/) {
             $node{metadata}{"length"} = $2;
-            push @metadata, \%length;
         }
         push @nodes, \%node;
         next;

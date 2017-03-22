@@ -41,7 +41,13 @@ unless ($sensitive) {
     $SIG{'INT'} = \&end;
     $SIG{'QUIT'} = \&end;
 }
-$SIG{'USR1'} = sub {print STDERR "Processing line no $lineno\n";};
+$SIG{'USR1'} = sub {
+    if ($lineno != -1) {
+        print STDERR "Processing line no $lineno\n";
+    } else {
+        print STDERR "Encoding JSON\n";
+    }
+};
 
 while (<>) {
     $lineno++;
@@ -127,6 +133,7 @@ while (<>) {
     warn "Unrecognized line format at line $lineno\n";
 }
 sub end {
+    $lineno = -1;
     shift @nodes;
     shift @edges;
     $graph{"nodes"} = \@nodes;

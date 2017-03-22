@@ -1,11 +1,12 @@
 #!/bin/bash
-# Usage: ./generate_reads.sh <SVGen directory>
+# Usage: ./generate_reads.sh <SVGen directory> <num indivs>
 SVGEN_BASE=$1
+NUM_INDIV=$2
 CHROM=22
 CHROM_TRANS=1-21
 FASTA=$SVGEN_BASE/reference/hg38.chromFa/chr22.fa
 
-for i in {1..1}
+for i in $(eval echo {1..$NUM_INDIV})
 do
     simulate_SV_BED.py \
         --dup_lens $SVGEN_BASE/SV_lengths.txt \

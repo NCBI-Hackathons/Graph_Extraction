@@ -132,6 +132,10 @@ while (<>) {
     }
     warn "Unrecognized line format at line $lineno\n";
 }
+
+our $ended = 1;
+&end();
+
 sub end {
     $lineno = -1;
     shift @nodes;
@@ -144,4 +148,4 @@ sub end {
     print $json;
     exit(0);
 }
-END { &end; }
+END { &end unless $ended; }
